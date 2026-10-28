@@ -27,3 +27,7 @@ X-Demo-Identity는 개발 편의를 위한 역할 선택입니다. 로컬 사용
 서버 전용 키·고정 합성 입력·API 요청 횟수 제한·중복 방지·실패 롤백을 적용합니다. 기본 mock 모드와 AI 모드를 화면에서 구분하며, 구성 오류를 mock 성공으로 숨기지 않습니다. 실제 사용자 입력·관계·메신저 데이터를 API에 보내는 승인은 포함하지 않습니다. 상세 동작은 [AI 연결과 제한](ai-integration.md)을 참고하세요.
 
 CLI execution limits and verification results are documented in [codex-cli.md](codex-cli.md). User input never becomes shell arguments or commands. Read-only alone is insufficient containment. No CLI-to-API fallback is implemented.
+
+## 최근 문맥과 합성 방
+
+대화·요청 기록·처리 중 잠금은 상대/방별로 분리합니다. 알려진 방과 합성 화자만 허용하고, 그룹의 다른 화자를 관계 승인된 응답 대상으로 추정하지 않습니다. 목표 이후 입력·역할 위조·역순 이벤트를 거부하며 실패한 입력과 문맥 미리보기는 저장하지 않습니다. UI는 textContent/createTextNode로 발언을 표시합니다. 추가 방·여러 화자 API는 mock 전용입니다. 상세 경계는 [recent-context.md](recent-context.md)를 참고하세요.

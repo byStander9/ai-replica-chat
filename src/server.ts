@@ -53,22 +53,30 @@ export function createDemoServer(service = new ChatService()) {
       const hosts = ["127.0.0.1:" + port, "localhost:" + port];
       if (!hosts.includes(request.headers.host ?? "")) throw new ServiceError(403, "로컬 호스트 요청만 허용합니다.");
       if (!["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(request.socket.remoteAddress ?? "")) throw new ServiceError(403, "로컬 접속만 허용합니다.");
-      const pathname = new URL(request.url ?? "/", "http://127.0.0.1").pathname;
+      const url = new URL(request.url ?? "/", "http://127.0.0.1");
+      const pathname = url.pathname;
       const origin = request.headers.origin;
       if ((origin !== undefined && !hosts.some(host => origin === "http://" + host)) || (pathname.startsWith("/api/") && request.headers["sec-fetch-site"] === "cross-site")) throw new ServiceError(403, "다른 사이트의 요청은 허용하지 않습니다.");
       if (pathname.startsWith("/api/")) {
         const demoHeader = request.headers["x-demo-identity"];
         if (Array.isArray(demoHeader)) throw new ServiceError(400, "데모 계정이 중복 지정되었습니다.");
         const identity = parseIdentity(demoHeader);
-        if (request.method === "GET" && pathname === "/api/session") return send(response, 200, service.session(identity));
+        if (request.method === "GET" && pathname === "/api/session") {
+          if ([...url.searchParams.keys()].some(key => key !== "room") || url.searchParams.getAll("room").length > 1) throw new ServiceError(400, "대화방 조회 필드가 유효하지 않습니다.");
+          return send(response, 200, service.session(identity, url.searchParams.get("room") ?? "main"));
+        }
         if (request.method === "GET" && pathname === "/api/admin/relationships") return send(response, 200, service.listRelationships(identity));
         if (request.method === "POST" && pathname === "/api/chat") {
-          const body = await readJson(request); exactKeys(body, ["message", "requestId"]);
-          return send(response, 200, await service.chat(identity, body.message, body.requestId));
+          const body = await readJson(request); exactKeys(body, Object.hasOwn(body, "roomId") ? ["message", "requestId", "roomId"] : ["message", "requestId"]);
+          return send(response, 200, await service.chat(identity, body.message, body.requestId, Object.hasOwn(body, "roomId") ? body.roomId : "main"));
+        }
+        if (request.method === "POST" && pathname === "/api/chat/batch") {
+          const body = await readJson(request); exactKeys(body, ["roomId", "events", "requestId"]);
+          return send(response, 200, await service.chatBatch(identity, body.roomId, body.events, body.requestId));
         }
         if (request.method === "POST" && pathname === "/api/session/reset") {
-          const body = await readJson(request); exactKeys(body, []);
-          return send(response, 200, service.reset(identity));
+          const body = await readJson(request); exactKeys(body, Object.hasOwn(body, "roomId") ? ["roomId"] : []);
+          return send(response, 200, service.reset(identity, Object.hasOwn(body, "roomId") ? body.roomId : "main"));
         }
         if (request.method === "POST" && pathname === "/api/admin/relationships") {
           const body = await readJson(request); exactKeys(body, ["accountId", "description", "approved"]);

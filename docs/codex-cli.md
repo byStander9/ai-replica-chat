@@ -26,8 +26,9 @@ Read-only does not prevent file reads. Tool configuration reduces access but is 
 
 ## Validation
 
-`npm run typecheck`, `npm run lint` and 43 tests pass. The suite uses fake CLI results and harmless Node processes, with no model calls. It covers stdin/cwd/environment/args/schema, account isolation, approval, duplicate IDs, concurrency, version/auth/tool preflight, transport limits and failures. The browser confirms CLI engine labeling, missing-config status and disabled sending for both pending and approved synthetic identities. Existing port 4317 was left untouched; browser checks used a separate disabled-provider server on port 4318.
+`npm run typecheck`, `npm run lint` and 55 tests pass. The suite uses fake CLI results and harmless Node processes, with no model calls. It covers stdin/cwd/environment/args/schema, account isolation, approval, duplicate IDs, concurrency, version/auth/tool preflight, transport limits and failures. The browser confirms CLI engine labeling, missing-config status and disabled sending for both pending and approved synthetic identities. Existing port 4317 was left untouched; browser checks used a separate disabled-provider server on port 4318.
 
 Failure diagnostics expose only fixed categories, known setting names, exit/signal metadata, event-kind identifiers and a short redacted excerpt from structured CLI error messages. Paths, URLs, emails, long identifiers and secret assignments are removed. Raw stderr, credentials, reply bodies and original diagnostic text are not persisted in reports or source. Run `npm run test:cli-config` for the offline no-credential check; `npm run test:cli-live` is the separate explicit live check.
 
 Official references: [CLI commands](https://learn.chatgpt.com/docs/developer-commands?surface=cli), [configuration](https://learn.chatgpt.com/docs/config-file/config-reference).
+The recent-context implementation and its synthetic-only validation are described in [recent-context.md](recent-context.md). The earlier live check predates that change; no new CLI/model request was made to validate longer-context quality.

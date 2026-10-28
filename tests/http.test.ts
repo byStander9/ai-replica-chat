@@ -73,3 +73,23 @@ test("CLI mode exposes missing configuration status and never silently uses mock
   assert.equal(result.status,503);assert.equal((await result.json() as {code:string}).code,"cli_calls_stopped");
  });
 });
+
+test("HTTP mock rooms and speaker batches expose bounded snapshots without crossing scope", async () => {
+  await withServer(new ChatService(), async origin => {
+    const post = (path: string, value: unknown) => fetch(origin + path, { method: "POST", headers: { "X-Demo-Identity": "friend-a", "Content-Type": "application/json" }, body: JSON.stringify(value) });
+    const events = [{ speakerId: "group-peer", text: "Fictional peer context", ageSeconds: 0 }, { speakerId: "friend-a", text: "Fictional latest input", ageSeconds: 0 }];
+    const response = await post("/api/chat/batch", { roomId: "group", events, requestId: "http-group-01" });
+    assert.equal(response.status, 200); const view = await response.json() as SessionView;
+    assert.equal(view.roomId, "group"); assert.equal(view.messages.length, 3); assert.equal(view.context?.messages.length, 2);
+    assert.equal(view.context?.report.multipleSpeakers, true); assert.equal(view.context?.report.targetSequence, 2);
+    const main = await fetch(origin + "/api/session?room=main", { headers: { "X-Demo-Identity": "friend-a" } }).then(r => r.json()) as SessionView;
+    assert.deepEqual(main.messages, []);
+    const other = await fetch(origin + "/api/session?room=group", { headers: { "X-Demo-Identity": "friend-b" } }).then(r => r.json()) as SessionView;
+    assert.deepEqual(other.messages, []); assert.equal(other.context, null);
+    assert.equal((await post("/api/chat/batch", { roomId: "group", events: [{ speakerId: "group-peer", text: "Fictional unapproved target", ageSeconds: 0 }], requestId: "http-group-02" })).status, 403);
+    assert.equal((await post("/api/chat/batch", { roomId: "group", events: [{ speakerId: "friend-a", text: "Fictional injected scope", ageSeconds: 0, roomId: "other" }], requestId: "http-group-03" })).status, 400);
+    assert.equal((await post("/api/chat", { roomId: null, message: "Fictional bad room", requestId: "http-group-04" })).status, 400);
+    assert.equal((await fetch(origin + "/api/session?room=main&room=group", { headers: { "X-Demo-Identity": "friend-a" } })).status, 400);
+    assert.equal((await post("/api/session/reset", { roomId: "group" })).status, 200);
+  });
+});

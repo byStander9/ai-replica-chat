@@ -61,6 +61,14 @@ test("CLI advisory error items do not discard a completed valid answer",async()=
  const p=new CodexResponder({executable,runner:fixture(()=>ok(advisory+"\n"+completed()))});
  assert.equal(await p.respond(input),"가상의 퍼즐 완성을 축하해!");assert.equal(p.diagnostic,null);
 });
+test("CLI forwards the selected history beyond twelve messages and enforces the whole prompt budget before launch",async()=>{
+ let modelCalls=0;
+ const p=new CodexResponder({executable,runner:fixture(spec=>{modelCalls++;const payload=JSON.parse(spec.stdin.slice(spec.stdin.indexOf("\n")+1)) as {messages:unknown[]};assert.equal(payload.messages.length,15);return ok(completed());})});
+ const sessionMessages=Array.from({length:15},(_,i)=>({role:"user" as const,text:SYNTHETIC_MESSAGES[0]!,sequence:i+1}));
+ await p.respond({...input,sessionMessages});
+ await assert.rejects(p.respond({...input,sessionMessages:[...sessionMessages,{role:"assistant",text:"가".repeat(9000),sequence:16}]}),code("context_review_needed"));
+ assert.equal(modelCalls,1);
+});
 test("CLI rejects non-fixture messages and arbitrary relationships before any process",async()=>{
  let calls=0;const p=new CodexResponder({executable,runner:async()=>{calls++;return ok("");}});
  await assert.rejects(p.respond({...input,relationshipDescription:"임의 합성 관계"}),code("synthetic_only"));

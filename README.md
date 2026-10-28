@@ -66,3 +66,9 @@ npm test
 `npm run dev:cli` selects a separate synthetic CLI provider and never loads the project API key. The final bounded live synthetic check succeeded with a schema-valid reply, duplicate-request suppression and counterpart isolation. The wrapper never retries or falls back to the API; CLI internal retries use official defaults. Default mock remains usable. See [CLI boundaries and evidence](docs/codex-cli.md). No messenger data or automatic sending is connected.
 
 Generated replies have no forced AI prefix/suffix. Engine/mock status remains visible in the local test UI; this is not a claim that a person is currently typing.
+
+## 최근 문맥 검토 · mock 전용 방/그룹 흐름
+
+승인된 합성 상대를 고른 뒤 기본 대화·별도 합성 대화·합성 그룹 대화를 전환할 수 있습니다. 그룹의 “합성 여러 화자 입력”은 외부 호출 없이 화자와 순서를 확인하는 예시입니다. 마지막 응답에 사용한 문맥 펼치기에서 선택·생략 이유와 크기 예산을 확인하세요.
+
+관계 문장과 최근 발언을 분리하고, 최대 10분·40발언·UTF-8 크기 예산 안에서 완전한 묶음을 선택합니다. 이 상한이 충분한 문맥이라는 뜻은 아닙니다. 추가 방·그룹 입력은 mock에서만 허용하며 실제 자료 연결·모델 전송 확대는 하지 않습니다. [문맥 처리와 제한](docs/recent-context.md)
