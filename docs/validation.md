@@ -39,3 +39,7 @@ Chrome에서 http://127.0.0.1:4317 를 열어 다음을 확인했습니다.
 타입 검사와 린트 통과, 자동 테스트 28개 통과(실패 0). 실제 OpenAI 호출 없이 가짜 토큰과 로컬 HTTP 목만 사용했습니다. 기본 mock은 키 없이 실행되고 키 미설정 AI 모드는 호출을 비활성화합니다. 중복 요청 1회 처리, 실패한 요청 재전송 방지, 오류·시간 초과 롤백, 승인 변경 후 늦은 응답 폐기, 계정별 격리, 고정 합성 입력만 전송, 키 파일 미추적·제외·파일 유형 검사를 확인했습니다.
 
 Chrome에서 mock 응답, 미승인 차단, 계정 격리, 관리자 자유문장 관계 저장을 확인했습니다. 실제 키를 로드하지 않는 테스트용 AI 인스턴스에서도 키 미설정 안내, 합성 예시 전용 UI, 등록 계정의 전송 차단을 확인했습니다. 실제 API 응답 검증은 별도 실행이며 정상 응답 성공을 이 자동 테스트 결과로 대신 주장하지 않습니다.
+
+## CLI adapter verification
+
+Type checking, lint and all 40 tests pass. Tests require an execution environment allowing temporary Git repositories and loopback HTTP; restricted sandbox runs fail those environment-dependent checks. The explicit live synthetic CLI check launched once and returned cli_failed. No normal response was verified, no failed input was stored, and there was no further CLI launch or API fallback. Internal network retry count is unknown; the official CLI defaults apply. Chrome verified the CLI label, missing-configuration notice and disabled sending for visitor and approved friend on a separate port 4318 server. Existing port 4317 was left untouched. See [CLI boundaries](codex-cli.md).

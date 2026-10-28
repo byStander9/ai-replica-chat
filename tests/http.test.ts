@@ -1,3 +1,4 @@
+import { CodexResponder } from "../src/codex-responder.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { once } from "node:events";
@@ -62,4 +63,13 @@ test("missing-key AI mode is explicit and cannot send or silently fall back to m
     assert.equal((await failed.json() as {code:string}).code, "api_key_unconfigured");
     assert.deepEqual(service.session("friend-a").messages, []); assert.equal(outbound, 0);
   });
+});
+
+test("CLI mode exposes missing configuration status and never silently uses mock/API",async()=>{
+ await withServer(new ChatService(new CodexResponder()),async origin=>{
+  const session=await fetch(origin+"/api/session",{headers:{"X-Demo-Identity":"friend-a"}}).then(r=>r.json()) as {mode:string;provider:{ready:boolean};allowedMessages:string[]};
+  assert.equal(session.mode,"codex-synthetic");assert.equal(session.provider.ready,false);assert.ok(session.allowedMessages.length>0);
+  const result=await fetch(origin+"/api/chat",{method:"POST",headers:{"X-Demo-Identity":"friend-a","Content-Type":"application/json"},body:JSON.stringify({message:session.allowedMessages[0],requestId:"cli-http-0001"})});
+  assert.equal(result.status,503);assert.equal((await result.json() as {code:string}).code,"cli_calls_stopped");
+ });
 });

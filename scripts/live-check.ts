@@ -17,7 +17,7 @@ async function main():Promise<void>{
   let messagesBeforeAttempt=0;
   try{
     const first=await service.chat("friend-a",SYNTHETIC_MESSAGES[0],"live-synthetic-01");
-    if(first.messages.length!==2||!first.messages[1]?.text.startsWith("[AI · 합성 테스트]"))throw new Error("Unexpected synthetic response");
+    if(first.messages.length!==2||!first.messages[1]?.text.trim())throw new Error("Unexpected synthetic response");
     await service.chat("friend-a",SYNTHETIC_MESSAGES[0],"live-synthetic-01");
     if(provider.info.remainingRequests!==1)throw new Error("Replay caused extra request");
     if(service.session("friend-b").messages.length!==0)throw new Error("Isolation failed");

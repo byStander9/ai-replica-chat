@@ -23,7 +23,7 @@ test("real HTTP mock verifies request shape with no call to OpenAI", async () =>
   const address=upstream.address(); assert.ok(address && typeof address!=="string");
   const responder = new OpenAiResponder({ apiKey: fakeKey, fetcher: async (url,options) => { assert.equal(url,OPENAI_RESPONSES_ENDPOINT); return fetch("http://127.0.0.1:"+address.port,options); } });
   try {
-    assert.match(await responder.respond(input()), /^\[AI · 합성 테스트\]/);
+    assert.equal(await responder.respond(input()), "합성 HTTP 목 응답입니다.");
     assert.equal(calls,1); assert.ok(captured);
     assert.equal(captured.store,false); assert.equal(captured.max_output_tokens,256);
     assert.deepEqual(captured.reasoning,{effort:"none"}); assert.equal("tools" in captured,false);

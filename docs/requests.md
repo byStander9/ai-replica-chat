@@ -27,3 +27,5 @@
 ## 후속 결정
 
 운영 인증, 저장·보존·삭제 정책, 모델 연결, 문맥 검토·품질 평가 및 운영 배포 조건을 별도로 정합니다. 개인별 초대 방식은 확정된 설계가 아닙니다.
+
+Personal-use automation is the intended direction; the web UI is a temporary local synthetic test interface. Optional CLI integration must reuse official ChatGPT auth without reading/copying tokens, permit only fixed synthetic inputs, and fail closed when safety restrictions cannot be verified. Generated reply bodies have no forced AI marker; owner-facing engine status remains. Actual messenger data/transport and public deployment are separate future work.

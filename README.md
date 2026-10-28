@@ -60,3 +60,9 @@ npm test
 코드 원격: byStander9/ai-replica-chat **PUBLIC**. 실제 메신저 원문·파생 자료·개인별 관계·대화 로그·DB·키와 로컬 보관 이력은 공개 저장소에 보내지 않습니다. 이 시제품은 그 자료를 읽지 않습니다.
 
 [요구사항 요약](docs/requests.md) · [설계 결정](docs/decisions.md) · [AI 연결과 제한](docs/ai-integration.md) · [권한 경계](docs/security.md) · [검증 기록](docs/validation.md) · [공개 코드 정책](docs/public-code-policy.md)
+
+## Optional Codex CLI experiment
+
+`npm run dev:cli` selects a separate synthetic CLI provider and never loads the project API key. The bounded live synthetic check launched once but failed; normal CLI output remains unverified. The wrapper never retries or falls back to the API; CLI internal retries use official defaults. Default mock remains usable. See [CLI boundaries and evidence](docs/codex-cli.md). No messenger data or automatic sending is connected.
+
+Generated replies have no forced AI prefix/suffix. Engine/mock status remains visible in the local test UI; this is not a claim that a person is currently typing.

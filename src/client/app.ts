@@ -1,5 +1,5 @@
 type Identity = "visitor" | "friend-a" | "friend-b" | "owner";
-type Mode = "mock" | "openai-synthetic";
+type Mode = "mock" | "openai-synthetic" | "codex-synthetic";
 interface Message { role: "user" | "assistant"; text: string; sequence: number }
 interface Provider { mode: Mode; ready: boolean; model: string | null; notice: string; remainingRequests: number | null }
 interface Session { identity: Identity; label: string; approved: boolean; mode: Mode; provider: Provider; allowedMessages: string[]; inFlight: boolean; messages: Message[] }
@@ -37,7 +37,7 @@ function notice(text: string, error = false): void {
 }
 async function api<T>(path: string, method = "GET", body?: unknown): Promise<T> {
   const headers: Record<string, string> = { "X-Demo-Identity": identity };
-  const options: RequestInit = { method, headers, signal: AbortSignal.timeout(25000) };
+  const options: RequestInit = { method, headers, signal: AbortSignal.timeout(60000) };
   if (body !== undefined) { headers["Content-Type"] = "application/json"; options.body = JSON.stringify(body); }
   const response = await fetch(path, options);
   const payload: unknown = await response.json();
@@ -50,12 +50,12 @@ async function api<T>(path: string, method = "GET", body?: unknown): Promise<T> 
 function render(session: Session): void {
   lastSession = session;
   const owner = session.identity === "owner";
-  const ai = session.mode === "openai-synthetic";
+  const ai = session.mode !== "mock";
   const waiting = busy || session.inFlight;
   chatPanel.hidden = owner; adminPanel.hidden = !owner;
   element("account-label", HTMLParagraphElement).textContent = session.label;
-  element("mode-label", HTMLSpanElement).textContent = ai ? "SYNTHETIC AI · 고정 예시 전용" : "MOCK 응답 · 외부 전송 없음";
-  element("mode-description", HTMLParagraphElement).textContent = ai ? "합성 예시만 서버에서 AI로 전송합니다. 실제 인물의 말투 학습 결과가 아닙니다." : "실제 AI 연결이나 말투 학습 없이, 합성 인물과 목 응답으로 작동합니다.";
+  element("mode-label", HTMLSpanElement).textContent = ai ? (session.mode === "codex-synthetic" ? "CODEX CLI · 합성 예시 전용" : "OPENAI API · 합성 예시 전용") : "MOCK 응답 · 외부 전송 없음";
+  element("mode-description", HTMLParagraphElement).textContent = session.mode === "codex-synthetic" && !session.provider.ready ? "CLI 실행이 비활성화되었습니다. 아래 연결 상태와 호출 한도를 확인하세요." : ai ? "합성 예시만 서버에서 AI로 전송합니다. 실제 인물의 말투 학습 결과가 아닙니다." : "실제 AI 연결이나 말투 학습 없이, 합성 인물과 목 응답으로 작동합니다.";
   element("model-status", HTMLElement).textContent = ai ? session.provider.model ?? "Not configured" : "Not connected";
   element("provider-notice", HTMLParagraphElement).textContent = session.provider.notice;
   element("mode-footer", HTMLSpanElement).textContent = ai ? "AI 복제본 · SYNTHETIC AI" : "AI 복제본 · MOCK MODE";
@@ -80,7 +80,7 @@ function render(session: Session): void {
     const option = document.createElement("option"); option.value = text; option.textContent = text; syntheticSelect.append(option);
   }
   if (session.allowedMessages.includes(selected)) syntheticSelect.value = selected;
-  element("session-note", HTMLSpanElement).textContent = waiting ? "응답 처리 중 · 중복 요청 방지" : "현재 세션 " + session.messages.filter(m => m.role === "user").length + "/40회 · " + (ai ? "남은 API 시도 " + session.provider.remainingRequests : "목 응답");
+  element("session-note", HTMLSpanElement).textContent = waiting ? "응답 처리 중 · 중복 요청 방지" : "현재 세션 " + session.messages.filter(m => m.role === "user").length + "/40회 · " + (ai ? "남은 엔진 시도 " + session.provider.remainingRequests : "목 응답");
   messages.replaceChildren();
   if (session.approved && session.messages.length === 0) {
     const empty = document.createElement("p"); empty.className = "empty-chat";

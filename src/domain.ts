@@ -1,4 +1,4 @@
-export type ResponseMode = "mock" | "openai-synthetic";
+export type ResponseMode = "mock" | "openai-synthetic" | "codex-synthetic";
 export interface Message { role: "user" | "assistant"; text: string; sequence: number }
 export interface ReplyInput { relationshipDescription: string; sessionMessages: readonly Message[] }
 export interface ProviderInfo { mode: ResponseMode; ready: boolean; model: string | null; notice: string; remainingRequests: number | null }

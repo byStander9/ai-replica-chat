@@ -37,7 +37,7 @@ export class ChatService {
   }
   session(identity: Identity): SessionView {
     const provider = this.responder.info;
-    const common = { mode: provider.mode, provider, allowedMessages: provider.mode === "openai-synthetic" ? SYNTHETIC_MESSAGES : [] };
+    const common = { mode: provider.mode, provider, allowedMessages: provider.mode !== "mock" ? SYNTHETIC_MESSAGES : [] };
     if (identity === "owner") return { ...common, identity, label: "소유자 · 데모 관리자", approved: false, inFlight: false, messages: [] };
     const relation = this.relation(identity);
     return { ...common, identity, label: relation.label, approved: relation.approved, inFlight: this.inFlight.has(identity), messages: relation.approved ? structuredClone(this.sessions.get(identity) ?? []) : [] };

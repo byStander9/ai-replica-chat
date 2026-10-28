@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ChatService, ServiceError, parseIdentity } from "./service.js";
 import { OpenAiResponder } from "./openai-responder.js";
+import { CodexResponder, loadCliPath } from "./codex-responder.js";
 import { loadApprovedKey } from "./config.js";
 
 const projectRoot = fileURLToPath(new URL("../../", import.meta.url));
@@ -93,8 +94,13 @@ export function createDemoServer(service = new ChatService()) {
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   assertDemoMode(process.argv, process.env.NODE_ENV);
   const syntheticAi = process.argv.includes("--synthetic-ai");
+  const codexCli = process.argv.includes("--synthetic-cli");
+  if(syntheticAi && codexCli) throw new Error("한 번에 하나의 제공자만 선택할 수 있습니다.");
   let service: ChatService;
-  if (syntheticAi) {
+  if (codexCli) {
+    const executable = loadCliPath(projectRoot);
+    service = new ChatService(new CodexResponder(executable ? {executable} : {}));
+  } else if (syntheticAi) {
     const configuration = loadApprovedKey(projectRoot);
     const responder = configuration.status === "ready" && configuration.apiKey
       ? new OpenAiResponder({ apiKey: configuration.apiKey })
@@ -103,6 +109,6 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   } else service = new ChatService();
   const server = createDemoServer(service);
   server.listen(4317, "127.0.0.1", () => {
-    console.log((syntheticAi ? "SYNTHETIC AI (manual fixed examples only)" : "SYNTHETIC / MOCK ONLY") + ": http://127.0.0.1:4317");
+    console.log((codexCli ? "CODEX CLI / SYNTHETIC ONLY" : syntheticAi ? "OPENAI API / SYNTHETIC ONLY" : "SYNTHETIC / MOCK ONLY") + ": http://127.0.0.1:4317");
   });
 }
