@@ -41,6 +41,8 @@ npm test
 
 운영 로그인·상대 식별, 실제 소유자 인증, 영구 저장·보존 기간, 승인 취소 정책, 모델 연결, 문맥 기반 말투 재현, 배포. 인증 설계가 정해졌다고 가정하지 않습니다.
 
-코드 원격 대상은 byStander9/ai-replica-chat **PRIVATE**입니다. 개인 데이터와 로컬 보관 이력은 원격으로 전송하지 않습니다.
+코드 원격 대상은 byStander9/ai-replica-chat **PUBLIC (공개 소스)**입니다. 개인 데이터와 로컬 보관 이력은 원격으로 전송하지 않습니다.
 
 기획 기록: [요구사항 요약](docs/requests.md), [결정과 미결정](docs/decisions.md), [권한 경계](docs/security.md).
+
+공개 범위와 푸시 규칙: [공개 코드 정책](docs/public-code-policy.md). 저장소 공개는 웹앱 배포나 개인 데이터 공개를 뜻하지 않습니다.
