@@ -23,4 +23,4 @@ API 키 생성·저장은 별도 보안 설정 작업입니다. 구현은 기존
 
 ## Personal automation direction
 
-The intended tool belongs to one owner, with multiple incoming conversation counterparts. The web UI is currently a temporary local test surface. Messenger automatic sending remains unimplemented. An optional ChatGPT-login CLI adapter uses bounded execution with no wrapper retry or API fallback; the single live check failed and normal output remains unverified. Replies do not force AI markers, while owner-facing engine labels remain explicit.
+The intended tool belongs to one owner, with multiple incoming conversation counterparts. The web UI is currently a temporary local test surface. Messenger automatic sending remains unimplemented. An optional ChatGPT-login CLI adapter uses bounded execution with no wrapper retry or API fallback; the final synthetic live check verified a valid reply, duplicate suppression and counterpart isolation. Replies do not force AI markers, while owner-facing engine labels remain explicit.

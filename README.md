@@ -63,6 +63,6 @@ npm test
 
 ## Optional Codex CLI experiment
 
-`npm run dev:cli` selects a separate synthetic CLI provider and never loads the project API key. The bounded live synthetic check launched once but failed; normal CLI output remains unverified. The wrapper never retries or falls back to the API; CLI internal retries use official defaults. Default mock remains usable. See [CLI boundaries and evidence](docs/codex-cli.md). No messenger data or automatic sending is connected.
+`npm run dev:cli` selects a separate synthetic CLI provider and never loads the project API key. The final bounded live synthetic check succeeded with a schema-valid reply, duplicate-request suppression and counterpart isolation. The wrapper never retries or falls back to the API; CLI internal retries use official defaults. Default mock remains usable. See [CLI boundaries and evidence](docs/codex-cli.md). No messenger data or automatic sending is connected.
 
 Generated replies have no forced AI prefix/suffix. Engine/mock status remains visible in the local test UI; this is not a claim that a person is currently typing.

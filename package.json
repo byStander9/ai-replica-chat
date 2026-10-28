@@ -19,6 +19,7 @@
     "test:live": "npm run build && node dist/scripts/live-check.js --confirm-synthetic-api",
     "start:cli": "node dist/src/server.js --demo --synthetic-cli",
     "dev:cli": "npm run build && npm run start:cli",
+    "test:cli-config": "npm run build && node dist/scripts/cli-config-check.js",
     "test:cli-live": "npm run build && node dist/scripts/cli-live-check.js --confirm-synthetic-cli"
   },
   "devDependencies": {
