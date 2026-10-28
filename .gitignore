@@ -1,0 +1,47 @@
+# Credentials: no example env files are needed for mock mode.
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials/
+# Dependencies and generated output
+node_modules/
+dist/
+coverage/
+.cache/
+__pycache__/
+*.log
+logs/
+*.tsbuildinfo
+# Runtime/user/private data: synthetic fixtures belong in source only.
+data/
+private/
+PrivateData/
+uploads/
+exports/
+derived*/
+relations/
+conversations/
+sessions/
+*.db
+*.db-*
+*.sqlite
+*.sqlite*
+*.jsonl
+*.csv
+*.zip
+*.txt
+# Local browser/test evidence
+artifacts/
+.DS_Store
+Thumbs.db
+
+# Private runtime JSON and machine-local configuration
+*.local.json
+relationship*.json
+chat-history*.json
+messages*.json
+session*.json

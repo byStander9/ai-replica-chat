@@ -1,0 +1,24 @@
+{
+  "name": "ai-replica-chat",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Synthetic localhost-only AI replica chat mock",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.server.json && tsc -p tsconfig.client.json",
+    "typecheck": "tsc -p tsconfig.server.json --noEmit && tsc -p tsconfig.client.json --noEmit",
+    "lint": "eslint src tests eslint.config.js",
+    "test": "npm run build && node --test dist/tests/service.test.js dist/tests/http.test.js",
+    "start": "node dist/src/server.js --demo",
+    "dev": "npm run build && npm start"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "typescript": "5.9.3",
+    "eslint": "10.13.0",
+    "typescript-eslint": "8.72.1"
+  }
+}
