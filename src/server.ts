@@ -3,6 +3,8 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ChatService, ServiceError, parseIdentity } from "./service.js";
+import { OpenAiResponder } from "./openai-responder.js";
+import { loadApprovedKey } from "./config.js";
 
 const projectRoot = fileURLToPath(new URL("../../", import.meta.url));
 const assets: Record<string, [string, string]> = {
@@ -60,8 +62,8 @@ export function createDemoServer(service = new ChatService()) {
         if (request.method === "GET" && pathname === "/api/session") return send(response, 200, service.session(identity));
         if (request.method === "GET" && pathname === "/api/admin/relationships") return send(response, 200, service.listRelationships(identity));
         if (request.method === "POST" && pathname === "/api/chat") {
-          const body = await readJson(request); exactKeys(body, ["message"]);
-          return send(response, 200, service.chat(identity, body.message));
+          const body = await readJson(request); exactKeys(body, ["message", "requestId"]);
+          return send(response, 200, await service.chat(identity, body.message, body.requestId));
         }
         if (request.method === "POST" && pathname === "/api/session/reset") {
           const body = await readJson(request); exactKeys(body, []);
@@ -83,15 +85,24 @@ export function createDemoServer(service = new ChatService()) {
     void run().catch((error: unknown) => {
       if (response.headersSent) { response.end(); return; }
       const known = error instanceof ServiceError;
-      send(response, known ? error.status : 500, { error: known ? error.message : "로컬 서버 오류가 발생했습니다." });
+      send(response, known ? error.status : 500, { error: known ? error.message : "로컬 서버 오류가 발생했습니다.", code: known ? error.code : "server_error" });
     });
   });
   return server;
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   assertDemoMode(process.argv, process.env.NODE_ENV);
-  const server = createDemoServer();
+  const syntheticAi = process.argv.includes("--synthetic-ai");
+  let service: ChatService;
+  if (syntheticAi) {
+    const configuration = loadApprovedKey(projectRoot);
+    const responder = configuration.status === "ready" && configuration.apiKey
+      ? new OpenAiResponder({ apiKey: configuration.apiKey })
+      : new OpenAiResponder({ configurationIssue: configuration.status === "unsafe-key-file" ? "unsafe-key-file" : "missing-key" });
+    service = new ChatService(responder);
+  } else service = new ChatService();
+  const server = createDemoServer(service);
   server.listen(4317, "127.0.0.1", () => {
-    console.log("SYNTHETIC / MOCK ONLY: http://127.0.0.1:4317");
+    console.log((syntheticAi ? "SYNTHETIC AI (manual fixed examples only)" : "SYNTHETIC / MOCK ONLY") + ": http://127.0.0.1:4317");
   });
 }

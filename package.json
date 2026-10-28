@@ -10,10 +10,13 @@
   "scripts": {
     "build": "tsc -p tsconfig.server.json && tsc -p tsconfig.client.json",
     "typecheck": "tsc -p tsconfig.server.json --noEmit && tsc -p tsconfig.client.json --noEmit",
-    "lint": "eslint src tests eslint.config.js",
-    "test": "npm run build && node --test dist/tests/service.test.js dist/tests/http.test.js",
+    "lint": "eslint src tests scripts eslint.config.js",
+    "test": "npm run build && node --test dist/tests/service.test.js dist/tests/http.test.js dist/tests/openai.test.js dist/tests/config.test.js",
     "start": "node dist/src/server.js --demo",
-    "dev": "npm run build && npm start"
+    "dev": "npm run build && npm start",
+    "start:ai": "node dist/src/server.js --demo --synthetic-ai",
+    "dev:ai": "npm run build && npm run start:ai",
+    "test:live": "npm run build && node dist/scripts/live-check.js --confirm-synthetic-api"
   },
   "devDependencies": {
     "@types/node": "24.19.2",
